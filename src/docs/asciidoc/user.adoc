@@ -1,0 +1,22 @@
+
+== User API
+
+=== SignUp
+==== successful case
+****
+operation::signup[snippets='http-request,request-headers,request-fields,http-response,response-fields']
+****
+
+=== SingIn
+==== successful case
+****
+operation::signin[snippets='http-request,request-headers,request-fields,http-response,response-fields']
+****
+
+=== Verify Email
+==== successful case
+****
+operation::confirm-email[snippets='http-request,request-headers,request-fields,http-response,response-fields']
+****
+
+'''

@@ -1,0 +1,33 @@
+= Bazar API
+Kimzipsa Team
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:stylesheet: src/docs/asciidoc/adoc_style.css
+
+[[introduction]]
+== Introduction
+This is a Bazaar api documentation. There is a side navigation menu which is located on the left side. When you click on a menu link, it will take you to  an API documentation detail section.
+
+== Server Environment
+
+This documentation provides details about the Bazaar API, which is available in different environments.
+
+== Domain
+Please note that the API is available in multiple environments, each with its own domain.
+
+|===
+| Environment | Domain
+
+| Local Environment
+| `http://localhost:8080`
+
+| Development Environment
+| `???`
+|===
+
+
+include::/{docfile}/../user.adoc[]

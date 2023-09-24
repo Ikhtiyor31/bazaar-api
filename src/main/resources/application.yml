@@ -1,0 +1,80 @@
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/bazaar?allowPublicKeyRetrieval=true&useSSL=false
+    username: bazaar
+    password: bazaar1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: abduazizov199531@gmail.com
+    password: bipdsiumiblbbppj
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  config:
+    activate:
+      on-profile: local
+
+logging:
+    level:
+      root: debug
+---
+
+# dev
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:mysql://rds-bazaar-dev-database-1.cdrfw0nsw2sr.ap-northeast-2.rds.amazonaws.com:3306/bazaar
+    username: admin
+    password: bazaar1234$
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: mysql
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: abduazizov199531@gmail.com
+    password: bipdsiumiblbbppj
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  config:
+    activate:
+      on-profile: dev
+logging:
+  level:
+    root: debug
