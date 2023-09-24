@@ -19,6 +19,7 @@ class ExceptionControllerAdvice {
         ex: ApiRequestException
     ): ResponseEntity<ApiExceptionResponse> {
         val zonedDateTime = LocalDateTime.now()
+        log.error("exception occurred: {} ", ex.messages)
         return ResponseEntity(
             ApiExceptionResponse(ex.errorCode, ex.messages, zonedDateTime),
             ex.httpStatus
@@ -30,6 +31,7 @@ class ExceptionControllerAdvice {
         request: HttpServletRequest,
         ex: Exception
     ): ResponseEntity<ApiExceptionResponse> {
+        log.error(ExceptionMessage.INTERNAL_SERVER_ERROR.message + " {}", ex.message)
         return this.handleApiException(
             request,
             ApiRequestException(ExceptionMessage.INTERNAL_SERVER_ERROR, ex.message.toString(), HttpStatus.BAD_REQUEST)
@@ -38,7 +40,8 @@ class ExceptionControllerAdvice {
 
     @ExceptionHandler(AuthorizationServiceException::class)
     fun unauthorizedException(request: HttpServletRequest, e: Exception): ResponseEntity<ApiExceptionResponse> {
+        log.error(ExceptionMessage.INTERNAL_SERVER_ERROR.message + " {}", "you are not authorized to do this operation")
         return this.handleApiException(request, ApiRequestException(
-            ExceptionMessage.INTERNAL_SERVER_ERROR, "You are not authorized to do this operation", HttpStatus.FORBIDDEN))
+            ExceptionMessage.INTERNAL_SERVER_ERROR, "you are not authorized to do this operation", HttpStatus.FORBIDDEN))
     }
 }
