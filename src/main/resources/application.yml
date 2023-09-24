@@ -36,8 +36,10 @@ spring:
       on-profile: local
 
 logging:
-    level:
-      root: debug
+  level:
+    root: info
+    org.springframework.web: info
+    org.hibernate: error
 ---
 
 # dev
@@ -77,4 +79,7 @@ spring:
       on-profile: dev
 logging:
   level:
-    root: debug
+    root: info
+    org.springframework.web: info
+    org.hibernate: error
+  config: classpath:logback-dev.xml

@@ -113,7 +113,7 @@ class UserServiceImpl(
     @Transactional(readOnly = false)
     override fun signInUser(userLoginRequest: UserLoginRequest): UserLoginResponse {
         val user = userRepository.findByEmail(userLoginRequest.email)
-            ?: throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.OK)
+            ?: throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.UNAUTHORIZED)
 
         if (!passwordEncoder.matches(userLoginRequest.password, user.passwordHashed))
             throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.UNAUTHORIZED)

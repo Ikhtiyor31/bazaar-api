@@ -1,5 +1,6 @@
 package com.strawberry.bazaarapi.user
 
+import com.strawberry.bazaarapi.email.EmailDetails
 import com.strawberry.bazaarapi.email.repository.EmailConfirmationRepositoryImpl
 import com.strawberry.bazaarapi.email.repository.EmailVerificationRepository
 import com.strawberry.bazaarapi.email.service.EmailService
@@ -88,7 +89,7 @@ class UserServiceTest {
         `when`(passwordEncoder.encode(userSignupRequest.password)).thenReturn(hashedPassword)
         `when`(userRepository.save(user)).thenReturn(user)
         `when`(emailVerificationRepository.findTopByUserIdOrderByIdDesc(user.id)).thenReturn(null)
-        doNothing().`when`(emailService).sendSimpleMail(any())
+        doNothing().`when`(emailService).sendSimpleMail(EmailDetails("", "", ""))
 
         // Act
         val actualResponse = userService.createUser(userSignupRequest)

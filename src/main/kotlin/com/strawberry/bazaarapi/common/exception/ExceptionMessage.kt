@@ -13,7 +13,7 @@ enum class ExceptionMessage(val message: String) {
     VERIFICATION_CODE_EXPIRED("the verification code is expired."),
     EMAIL_SENDING_ERROR("the verification code is expired."),
     EMAIL_ALREADY_CONFIRMED("your email  is already confirmed!"),
-    EMAIL_NOT_CONFIRMED_YET("please ver"),
+    EMAIL_NOT_CONFIRMED_YET("please verify your email first"),
     USER_EMAIL_CONDITION_NOT_MET("invalid email address"),
     EMPTY_PASSWORD("please enter your password"),
     PASSWORD_MIN_LENGTH_CONDITION_NOT_MET("the password must be 6 characters or more"),
