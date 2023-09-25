@@ -17,13 +17,13 @@ import javax.persistence.*
 @Entity
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener::class)
-@Table(name = "\"user\"")
+@Table(name = "user")
 data class User(
 
     @Id
-    @Column(name = "id", unique = true)
+    @Column(name = "user_id", unique = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0L,
 
     @Column(name = "name")
     var name: String = "",

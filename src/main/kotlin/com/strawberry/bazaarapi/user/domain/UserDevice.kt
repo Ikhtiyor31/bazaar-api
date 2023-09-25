@@ -1,5 +1,6 @@
 package com.strawberry.bazaarapi.user.domain
 
+import com.strawberry.bazaarapi.user.dto.UserDeviceDto
 import com.strawberry.bazaarapi.user.enums.PlatformType
 import javax.persistence.*
 
@@ -13,7 +14,7 @@ data class UserDevice(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User,
 
@@ -35,4 +36,15 @@ data class UserDevice(
 
     @Column(name = "app_version")
     var appVersion: String,
-)
+) {
+    fun toResponse() : UserDeviceDto {
+        return UserDeviceDto(
+            deviceKey = deviceKey,
+            deviceFcmToken = deviceFcmToken,
+            deviceIpAddress = deviceIpAddress,
+            platformType = platformType,
+            deviceOsVersion = deviceOsVersion,
+            appVersion = appVersion
+        )
+    }
+}
