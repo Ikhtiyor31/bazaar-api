@@ -1,6 +1,18 @@
-
-
 services:
+  bazaar-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/bazaar?autoReconnect=true
+    depends_on:
+      - mysqldb  # Ensure mysqldb starts before bazaar-backend
+      - redis    # Ensure Redis starts before bazaar-backend
+    networks:
+      - bazaar-net
+
   mysqldb:
     container_name: bazaar-mysql
     platform: linux/amd64

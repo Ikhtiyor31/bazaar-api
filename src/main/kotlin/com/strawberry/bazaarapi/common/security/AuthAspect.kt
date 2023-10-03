@@ -31,7 +31,7 @@ class AuthAspect(
             throw ApiRequestException(ExceptionMessage.INVALID_OR_EXPIRED_USER_ACCESS_TOKEN, HttpStatus.FORBIDDEN)
         }
 
-        if (!roleMapping.value.contains(user.role) || user.role != Role.ADMIN) {
+        if (!roleMapping.value.contains(user.role) && !roleMapping.value.contains(Role.ADMIN)) {
             throw ApiRequestException(ExceptionMessage.USER_ACCESS_RESTRICTION, HttpStatus.FORBIDDEN)
         }
 
