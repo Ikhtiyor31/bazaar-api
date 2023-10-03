@@ -1,6 +1,6 @@
 package com.strawberry.bazaarapi.user.enums
 
-enum class Roles {
+enum class Role {
     USER,
     ADMIN,
     MANAGER,

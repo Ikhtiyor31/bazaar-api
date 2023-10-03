@@ -1,0 +1,20 @@
+== User API
+
+=== Create User Device
+==== successful case
+****
+operation::createUserDeviceInfo[snippets='http-request,request-headers,request-fields,http-response,response-fields']
+****
+
+=== Delete User Device
+==== successful case
+****
+operation::deleteUserDevice[snippets='http-request,request-headers,http-response']
+****
+
+
+=== Check User Device Exist
+==== successful case
+****
+operation::isUserDeviceExist[snippets='http-request,request-headers,request-parameters,http-response,response-fields']
+****

@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserJwtAccessTokenRepository : JpaRepository<UserToken, Long> {
 
-    fun findByUsername(username: String) : UserToken?
+    fun findTopByUsernameOrderByIdDesc(username: String) : UserToken?
 }

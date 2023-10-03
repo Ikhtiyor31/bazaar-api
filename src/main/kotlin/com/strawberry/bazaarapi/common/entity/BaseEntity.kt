@@ -21,4 +21,8 @@ abstract class BaseEntity {
 
     @Column(name = "deleted", nullable = false, columnDefinition = "BIT default 0")
     private var deleted: Boolean = false
+
+    fun delete() {
+        this.deleted = true
+    }
 }

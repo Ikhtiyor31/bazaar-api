@@ -31,3 +31,4 @@ Please note that the API is available in multiple environments, each with its ow
 
 
 include::/{docfile}/../user.adoc[]
+include::/{docfile}/../user_device.adoc[]

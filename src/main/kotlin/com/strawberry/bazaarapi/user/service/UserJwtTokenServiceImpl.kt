@@ -6,38 +6,38 @@ import com.strawberry.bazaarapi.common.exception.ApiRequestException
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
 import com.strawberry.bazaarapi.user.repository.UserJwtAccessTokenRepository
 import com.strawberry.bazaarapi.user.domain.User
+import com.strawberry.bazaarapi.user.dto.RefreshTokenRequest
 import com.strawberry.bazaarapi.user.dto.UserLoginResponse
 import com.strawberry.bazaarapi.util.UserUtil.ACCESS_TOKEN_LIFETIME_HOUR
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class UserJwtTokenServiceImpl(
-        @Autowired private val userJwtAccessTokenRepository: UserJwtAccessTokenRepository
-): UserJwtTokenService {
+    private val userJwtAccessTokenRepository: UserJwtAccessTokenRepository
+) : UserJwtTokenService {
 
     override fun generateUserAccessToken(userId: String): UserLoginResponse {
 
         val accessToken = generateAccessToken(userId)
         val refreshToken = generateRefreshToken(userId)
 
-        val userAccessToken = UserToken().apply {
-            this.accessToken = accessToken.first
-            this.username = userId
-            this.lifetimeHour = ACCESS_TOKEN_LIFETIME_HOUR
-            this.expiryAt = accessToken.second
-            this.refreshToken = refreshToken.first
-        }
+        val userAccessToken = UserToken(
+            username = userId,
+            accessToken = accessToken.first,
+            lifetimeHour = ACCESS_TOKEN_LIFETIME_HOUR,
+            expiryAt = accessToken.second,
+            refreshToken = refreshToken.first
+        )
         userJwtAccessTokenRepository.save(userAccessToken)
 
         return UserLoginResponse(
-                userAccessToken.accessToken,
-                userAccessToken.refreshToken
+            userAccessToken.accessToken,
+            userAccessToken.refreshToken
         )
     }
 
@@ -45,7 +45,7 @@ class UserJwtTokenServiceImpl(
         return extractClaims(token, Claims.SUBJECT).toString()
     }
 
-    override fun isTokenValid(token: String, user: User?) : Boolean {
+    override fun isTokenValid(token: String, user: User?): Boolean {
         val username = extractUsername(token)
         if (user == null)
             return false
@@ -54,30 +54,34 @@ class UserJwtTokenServiceImpl(
 
     }
 
-    override fun generateUserRefreshToken(username: String, refreshToken: String): UserLoginResponse {
-        val userToken = userJwtAccessTokenRepository.findByUsername(username) ?:
+    override fun generateUserRefreshToken(refreshTokenRequest: RefreshTokenRequest): UserLoginResponse {
+        val userToken = userJwtAccessTokenRepository.findTopByUsernameOrderByIdDesc(refreshTokenRequest.username)
+            ?: throw ApiRequestException(
+                ExceptionMessage.USER_NOT_EXIST,
+                HttpStatus.OK
+            )
+
+        if (userToken.username != refreshTokenRequest.username && refreshTokenRequest.refreshToken != userToken.refreshToken)
             throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST, HttpStatus.OK)
 
-        if (userToken.username != username && refreshToken != userToken.refreshToken)
-            throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST, HttpStatus.OK)
-
-        val accessToken = generateAccessToken(username)
-        val newRefreshToken = generateRefreshToken(username)
+        val accessToken = generateAccessToken(refreshTokenRequest.username)
+        val newRefreshToken = generateRefreshToken(refreshTokenRequest.username)
         return UserLoginResponse(
-                userAccessToken = accessToken.first,
-                userRefreshToken = newRefreshToken.first)
+            accessToken = accessToken.first,
+            refreshToken = newRefreshToken.first
+        )
     }
 
     override fun getUserAccessToken(username: String): UserToken? {
-        return userJwtAccessTokenRepository.findByUsername(username)
+        return userJwtAccessTokenRepository.findTopByUsernameOrderByIdDesc(username)
     }
 
-    private fun isTokenExpired(token: String) : Boolean {
+    private fun isTokenExpired(token: String): Boolean {
         val expiration = extractExpirationDate(token) ?: return false
         return expiration.before(Date())
     }
 
-    private fun extractExpirationDate(token: String) : Date ? {
+    private fun extractExpirationDate(token: String): Date? {
         val claims = extractAllClaims(token)
         return claims.expiration
     }
@@ -90,8 +94,8 @@ class UserJwtTokenServiceImpl(
 
     private fun extractAllClaims(token: String): Claims {
         return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token).body
+            .setSigningKey(secretKey)
+            .parseClaimsJws(token).body
     }
 
 
