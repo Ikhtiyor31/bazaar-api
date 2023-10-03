@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 class UserServiceImpl(
     private val userJwtTokenService: UserJwtTokenService,
     private val passwordEncoder: PasswordEncoder,
@@ -31,8 +31,6 @@ class UserServiceImpl(
     private val emailConfirmationRepositoryImpl: EmailConfirmationRepositoryImpl
 ) : UserService {
 
-
-    @Transactional(readOnly = false)
     override fun createUser(userSignupRequest: UserSignupRequest): UserSignupResponse {
 
         var existingUser = userRepository.findByEmail(userSignupRequest.email)
@@ -57,7 +55,7 @@ class UserServiceImpl(
             userRepository.save(existingUser)
         } else {
             val hashedPassword = passwordEncoder.encode(userSignupRequest.password)
-            userRepositorySupport.updateUserPassword(hashedPassword, existingUser.id!!)
+            userRepositorySupport.updateUserPassword(hashedPassword, existingUser.id)
         }
 
         sendVerificationEmail(existingUser, authCode)
@@ -82,14 +80,13 @@ class UserServiceImpl(
         )
     }
 
-    @Transactional(readOnly = false)
     override fun verifyEmail(accountVerificationRequest: AccountVerificationRequest): AccountVerificationResponse {
         val user = userRepository.findByEmail(accountVerificationRequest.email)
             ?: throw ApiRequestException(ExceptionMessage.USER_NOT_SIGNUP_YET)
 
 
         val emailConfirmationCode = emailConfirmationRepositoryImpl.findConfirmationCodeByUserId(
-            user.id!!,
+            user.id,
             accountVerificationRequest.confirmationCode
         ) ?: throw ApiRequestException(ExceptionMessage.INVALID_AUTHORIZATION_NUMBER)
 
@@ -110,7 +107,6 @@ class UserServiceImpl(
         )
     }
 
-    @Transactional(readOnly = false)
     override fun signInUser(userLoginRequest: UserLoginRequest): UserLoginResponse {
         val user = userRepository.findByEmail(userLoginRequest.email)
             ?: throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.UNAUTHORIZED)
@@ -129,8 +125,8 @@ class UserServiceImpl(
 
         return userJwtTokenService.generateUserAccessToken(userLoginRequest.email)
     }
-    @Transactional(readOnly = false)
-    override fun forgotPassword(email: String): UserSignupResponse {
+
+    override fun forgotPassword(email: String): ForgotPasswordResponse {
         val user = userRepository.findByEmail(email)
             ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
 
@@ -148,14 +144,13 @@ class UserServiceImpl(
         emailVerificationRepository.save(emailVerificationCode)
 
         sendVerificationEmail(user, authCode)
-        return UserSignupResponse(
+        return ForgotPasswordResponse(
             message = "Please enter a verification code that we have sent to your email at $email",
             verificationCode = authCode
         )
     }
 
-    @Transactional(readOnly = false)
-    override fun updatePassword(passwordResetRequest: PasswordResetRequest): PasswordResetResponse {
+    override fun resetPassword(passwordResetRequest: PasswordResetRequest): PasswordResetResponse {
         val user = userRepository.findByEmail(passwordResetRequest.email)
             ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
 
@@ -166,32 +161,34 @@ class UserServiceImpl(
 
         val hashedPassword = passwordEncoder.encode(passwordResetRequest.newPassword)
 
-        user.updateUserPassword(hashedPassword)
+        user.updatePassword(hashedPassword)
 
         return PasswordResetResponse(HttpStatus.OK, "Your password is updated")
     }
 
 
-    override fun updateUserRole(role: String): String {
-        return "OK";
+    override fun updateUserRole(updateUserRoleDto: UpdateUserRoleDto): UpdateUserRoleDto {
+        val user = userRepository.findByEmail(updateUserRoleDto.email)
+            ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
+
+        user.updateUserRole(updateUserRoleDto.userRole)
+
+        return UpdateUserRoleDto(user.email, user.role)
     }
 
-    override fun getUsers(): List<User> {
-        return userRepository.findAll()
-    }
 
+    @Transactional(readOnly = true)
     override fun getUser(userId: Long): User {
         return userRepository.findById(userId)
             .orElseThrow{ApiRequestException(ExceptionMessage.USER_NOT_EXIST, "can not find user id $userId", HttpStatus.NOT_FOUND)}
     }
 
-    @Transactional
-    override fun deleteUserAccount(userId: Long): Long {
-        val user = userRepository.findById(userId)
+    override fun deleteUserAccount(email: String): String {
+        val user = userRepository.findByEmail(email) ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
 
-        user.ifPresent(User::delete)
+        user.delete()
 
-        return userId
+        return "OK"
     }
 
     override fun resendVerificationCode(email: String): UserSignupResponse {

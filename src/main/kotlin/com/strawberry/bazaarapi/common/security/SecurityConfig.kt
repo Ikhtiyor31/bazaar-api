@@ -33,7 +33,7 @@ class SecurityConfig(
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.authorizeRequests().antMatchers(
             "/api/v1/users/signup",
-            "/api/v1/users/confirm-email",
+            "/api/v1/users/verify-email",
             "/api/v1/users/signin",
             "/api/v1/users/users",
             "/api/v1/users/forgot-password",

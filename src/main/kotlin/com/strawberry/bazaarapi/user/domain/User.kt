@@ -2,7 +2,7 @@ package com.strawberry.bazaarapi.user.domain
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.strawberry.bazaarapi.user.enums.Roles
+import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.util.UserRoleConverter
 import org.hibernate.annotations.DynamicUpdate
@@ -17,7 +17,7 @@ import javax.persistence.*
 @Entity
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener::class)
-@Table(name = "user")
+@Table(name = "\"user\"")
 data class User(
 
     @Id
@@ -46,7 +46,7 @@ data class User(
 
     @Column(name = "user_role")
     @Convert(converter = UserRoleConverter::class)
-    var role: Roles = Roles.USER,
+    var role: Role = Role.USER,
 
     @JsonIgnore
     @Column(name = "join_dt")
@@ -60,11 +60,11 @@ data class User(
     var deleted: Boolean? = false,
 
     ) : UserDetails {
-    fun updateUserRole(userRole: String): User {
-        return when (userRole) {
-            "MANAGER" -> this.copy(role = Roles.MANAGER)
-            "ADMIN" -> this.copy(role = Roles.ADMIN)
-            else -> this.copy(role = Roles.USER)
+    fun updateUserRole(userRole: Role) {
+        when (userRole) {
+            Role.MANAGER -> this.role = Role.MANAGER
+            Role.ADMIN -> this.role = Role.ADMIN
+            else -> this.role = Role.USER
         }
     }
 
@@ -72,7 +72,7 @@ data class User(
         this.enabled = enabled
     }
 
-    fun updateUserPassword(passwordHashed: String) {
+    fun updatePassword(passwordHashed: String) {
         this.passwordHashed = passwordHashed
     }
 

@@ -1,27 +1,21 @@
 package com.strawberry.bazaarapi.user.controller
 
+import com.strawberry.bazaarapi.common.security.LoggedInUser
 import com.strawberry.bazaarapi.common.security.RoleMapping
 import com.strawberry.bazaarapi.common.validation.ValidationSequence
-import com.strawberry.bazaarapi.user.enums.Roles
+import com.strawberry.bazaarapi.user.domain.User
+import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.dto.*
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
 import com.strawberry.bazaarapi.user.service.UserService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/users")
 class UserController(
-    @Autowired private val userJwtTokenService: UserJwtTokenService,
+    private val userJwtTokenService: UserJwtTokenService,
     val userService: UserService
 ) {
 
@@ -35,38 +29,38 @@ class UserController(
         return ResponseEntity.ok(userService.signInUser(userLoginRequest))
     }
 
-    @PostMapping("/confirm-email")
+    @PostMapping("/verify-email")
     fun verifyEmail(@RequestBody accountVerificationRequest: AccountVerificationRequest): ResponseEntity<AccountVerificationResponse> {
         return ResponseEntity.ok(userService.verifyEmail(accountVerificationRequest))
     }
 
-    @RoleMapping(Roles.ADMIN)
-    @PutMapping("/update-role")
-    fun updateUserRole(@RequestBody role: String): ResponseEntity<String> {
-        return ResponseEntity.ok(userService.updateUserRole(role))
+    @RoleMapping(Role.ADMIN)
+    @PatchMapping("/update-role")
+    fun updateUserRole(@RequestBody updateUserRoleDto: UpdateUserRoleDto): ResponseEntity<UpdateUserRoleDto> {
+        return ResponseEntity.ok(userService.updateUserRole(updateUserRoleDto))
     }
 
     @PostMapping("/token/refresh")
     fun refreshToken(@RequestBody refreshTokenRequest: RefreshTokenRequest): ResponseEntity<Any> {
         return ResponseEntity.ok(
-            userJwtTokenService.generateUserRefreshToken(refreshTokenRequest.username, refreshTokenRequest.refreshToken)
+            userJwtTokenService.generateUserRefreshToken(refreshTokenRequest)
         )
     }
 
     @PostMapping("/forgot-password")
-    fun forgotPassword(@RequestBody userEmailRequest: UserEmailRequest): ResponseEntity<UserSignupResponse> {
-        return ResponseEntity.ok(userService.forgotPassword(userEmailRequest.email))
+    fun forgotPassword(@RequestParam email: String): ResponseEntity<ForgotPasswordResponse> {
+        return ResponseEntity.ok(userService.forgotPassword(email))
     }
 
-    @PutMapping("/reset-password")
-    fun updatePassword(@RequestBody passwordResetRequest: PasswordResetRequest): ResponseEntity<PasswordResetResponse> {
-        return ResponseEntity.ok(userService.updatePassword(passwordResetRequest))
+    @PatchMapping("/reset-password")
+    fun resetPassword(@RequestBody passwordResetRequest: PasswordResetRequest): ResponseEntity<PasswordResetResponse> {
+        return ResponseEntity.ok(userService.resetPassword(passwordResetRequest))
     }
 
-    @RoleMapping(Roles.USER)
-    @DeleteMapping("/{userId}")
-    fun deleteUserAccount(@PathVariable("userId") userId: Long): ResponseEntity<Long> {
-        return ResponseEntity.ok(userService.deleteUserAccount(userId))
+    @RoleMapping(Role.USER)
+    @DeleteMapping("/delete-account")
+    fun deleteUserAccount(@LoggedInUser user: User): ResponseEntity<String> {
+        return ResponseEntity.ok(userService.deleteUserAccount(user.email))
     }
 
     @PostMapping("/resend-verification-code/{email}")
@@ -74,12 +68,7 @@ class UserController(
         return ResponseEntity.ok(userService.resendVerificationCode(email))
     }
 
-    @GetMapping("/users")
-    fun getUsers(): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(userService.getUsers())
-    }
-
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     fun getUsers(@PathVariable("userId") userId: Long): ResponseEntity<Any> {
         return ResponseEntity.ok().body(userService.getUser(userId))
     }

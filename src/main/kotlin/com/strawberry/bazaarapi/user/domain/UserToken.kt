@@ -13,49 +13,34 @@ import javax.persistence.Table
 @Entity
 @Table(name = "user_access_token")
 data class UserToken(
-        /**
-         * PK
-         */
         @Id
         @Column(name = "id")
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long = 0,
 
-        @Column(name = "username")
-        var username: String = "",
-        /**
-         * access token
-         * */
-        @Column(name = "access_token")
-        var accessToken: String? = null,
+        @Column(name = "username", nullable = false)
+        var username: String,
 
-        @Column(name = "lifetime_hour")
+        @Column(name = "access_token", nullable = false)
+        var accessToken: String,
+
+        @Column(name = "lifetime_hour", nullable = false)
         var lifetimeHour: Int = ACCESS_TOKEN_LIFETIME_HOUR,
 
-        @Column(name = "expiry_at")
-        var expiryAt: Date? = null,
+        @Column(name = "expiry_at", nullable = false)
+        var expiryAt: Date,
 
-        /**
-         * additional token to refresh expired token
-         */
-        @Column(name = "refresh_token")
-        var refreshToken: String? = null,
+        @Column(name = "refresh_token", nullable = false)
+        var refreshToken: String,
 
-        /**
-         * created date and time
-         */
         @Column(name = "created_at")
         var createdAt: LocalDateTime = LocalDateTime.now(),
 
-        /**
-         * update date and time
-         */
         @Column(name = "updated_at")
         var updatedAt: LocalDateTime? = null
 
 ) {
         fun isExpired(): Boolean {
-                this.expiryAt ?: return false
-                return this.expiryAt!!.before(Date())
+                return this.expiryAt.before(Date())
         }
 }

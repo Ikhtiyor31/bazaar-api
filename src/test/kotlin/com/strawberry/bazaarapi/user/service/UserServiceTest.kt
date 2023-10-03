@@ -1,4 +1,4 @@
-package com.strawberry.bazaarapi.user
+package com.strawberry.bazaarapi.user.service
 
 import com.strawberry.bazaarapi.email.EmailDetails
 import com.strawberry.bazaarapi.email.repository.EmailConfirmationRepositoryImpl
@@ -10,14 +10,11 @@ import com.strawberry.bazaarapi.user.dto.UserSignupResponse
 import com.strawberry.bazaarapi.user.repository.UserDeviceRepository
 import com.strawberry.bazaarapi.user.repository.UserRepository
 import com.strawberry.bazaarapi.user.repository.UserRepositorySupportImpl
-import com.strawberry.bazaarapi.user.service.UserJwtTokenService
-import com.strawberry.bazaarapi.user.service.UserServiceImpl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -57,9 +54,6 @@ class UserServiceTest {
     @Mock
     private lateinit var emailConfirmationRepositoryImpl: EmailConfirmationRepositoryImpl
 
-    @Mock
-    private lateinit var userDeviceRepository: UserDeviceRepository
-
     @BeforeEach
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -67,7 +61,6 @@ class UserServiceTest {
 
     @Test
     fun `createUser with valid input should return UserSignupResponse`() {
-        // Arrange
         val userSignupRequest = UserSignupRequest(
             email = "ikhtiyor@gmail.com",
             password = "password123"
@@ -99,11 +92,6 @@ class UserServiceTest {
     }
 
     @Test
-    fun `create user device info`() {
-
-    }
-
-    @Test
     fun `create user should throw exception if the user with given email already exists`() {
         val userEmail = "ikhtiyor@gmail.com"
         val userSignupRequest = UserSignupRequest(
@@ -121,12 +109,5 @@ class UserServiceTest {
         userService.createUser(userSignupRequest)
         val existedUser = userRepository.findByEmail(userEmail)
         assertThat(existedUser?.enabled).isEqualTo(true)
-        //val existedUser = userRepository.findByEmail(userEmail)
-        //assertNotNull(existedUser)
-
-        //assertEquals(existedUser?.enabled, true)
-
-
-
     }
 }

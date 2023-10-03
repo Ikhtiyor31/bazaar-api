@@ -1,22 +1,22 @@
 package com.strawberry.bazaarapi.util
 
-import com.strawberry.bazaarapi.user.enums.Roles
+import com.strawberry.bazaarapi.user.enums.Role
 import javax.persistence.AttributeConverter
 
-class UserRoleConverter : AttributeConverter<Roles, String> {
-    override fun convertToDatabaseColumn(attribute: Roles?): String {
+class UserRoleConverter : AttributeConverter<Role, String> {
+    override fun convertToDatabaseColumn(attribute: Role?): String {
         return when (attribute) {
-            Roles.MANAGER -> "MANAGER"
-            Roles.ADMIN -> "ADMIN"
+            Role.MANAGER -> "MANAGER"
+            Role.ADMIN -> "ADMIN"
             else -> "USER"
         }
     }
 
-    override fun convertToEntityAttribute(dbData: String?): Roles {
+    override fun convertToEntityAttribute(dbData: String?): Role {
         return when (dbData) {
-            "MANAGER" -> Roles.MANAGER
-            "ADMIN" -> Roles.ADMIN
-            else -> Roles.USER
+            "MANAGER" -> Role.MANAGER
+            "ADMIN" -> Role.ADMIN
+            else -> Role.USER
         }
     }
 }

@@ -1,11 +1,9 @@
-package com.strawberry.bazaarapi.user
+package com.strawberry.bazaarapi.user.repository
 
 import com.strawberry.bazaarapi.common.config.QueryDslConfig
 import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.domain.UserDevice
 import com.strawberry.bazaarapi.user.enums.PlatformType
-import com.strawberry.bazaarapi.user.repository.UserDeviceRepository
-import com.strawberry.bazaarapi.user.repository.UserRepository
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,15 +15,13 @@ import org.springframework.transaction.annotation.Transactional
 @DataJpaTest
 @Transactional
 @Import(QueryDslConfig::class)
-internal class UserRepositorySupportJpaTest(
-    @Autowired private val userRepository: UserRepository,
-    @Autowired private val userDeviceRepository: UserDeviceRepository,
-){
+internal class UserRepositoryTest(
+    @Autowired private val userRepository: UserRepository
+) {
 
     @BeforeEach
     fun setUp() {
         userRepository.deleteAll()
-        userDeviceRepository.deleteAll()
     }
 
 
@@ -48,7 +44,7 @@ internal class UserRepositorySupportJpaTest(
         assertThat(user.email).isEqualTo(savedUser?.email)
     }
 
-    
+
     @DisplayName("it should check if user email exists")
     @Test
     fun itShouldCheckIfUserEmailDoesNotExist() {
@@ -73,36 +69,11 @@ internal class UserRepositorySupportJpaTest(
             passwordHashed = "password"
         )
 
-        // Call the findByEmail method with the email of the duplicated user object and assert that the result is not null
         val savedUser = userRepository.findByEmail(userEmail)
         assertThat(savedUser).isNotNull
         assertThat(savedUser?.email).isEqualTo(duplicatedUser.email)
         assertThrows<DataIntegrityViolationException> { userRepository.save(duplicatedUser) }
     }
-
-    @Test
-    fun `crate user device info`() {
-        val user = getUser()
-        userRepository.save(user)
-        val savedUser = userRepository.findByEmail(userEmail)
-        val device = UserDevice(
-            user = savedUser!!,
-            deviceKey = "device_key_1",
-            deviceFcmToken = "fcm_token_1",
-            deviceIpAddress = "192.168.1.1",
-            platformType = PlatformType.ANDROID,
-            deviceOsVersion = "Android 10",
-            appVersion = "1.0.0"
-        )
-
-        userDeviceRepository.save(device)
-        val userDeviceList = userDeviceRepository.findAll();
-
-        assertThat(userDeviceList.size).isEqualTo(1)
-    }
-
-
-
 
     companion object {
         private const val userEmail = "abduazizov199531@mail.com"
