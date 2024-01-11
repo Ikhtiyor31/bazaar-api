@@ -1,0 +1,7 @@
+
+Admin Account API
+=== Update User Role
+==== successful case
+****
+operation::update-role[snippets='http-request,request-headers,request-fields,http-response,response-fields']
+****

@@ -17,5 +17,9 @@ enum class ExceptionMessage(val message: String) {
     USER_EMAIL_CONDITION_NOT_MET("invalid email address"),
     EMPTY_PASSWORD("please enter your password"),
     PASSWORD_MIN_LENGTH_CONDITION_NOT_MET("the password must be 6 characters or more"),
-    PASSWORD_MISMATCH("the password you entered do not match")
+    PASSWORD_MISMATCH("the password you entered do not match"),
+    ARGUMENT_NOT_VALIDATION_EXCEPTION("the parameters or data in request is incorrect"),
+    ILLEGAL_STATE_EXCEPTION("a method has been invoked at an illegal or inappropriate time"),
+    METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED"),
+    NO_HANDLER_FOUND("Not Found ")
 }

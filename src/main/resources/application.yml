@@ -2,11 +2,11 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-  datasource:
-    url: jdbc:mysql://localhost:3306/bazaar?allowPublicKeyRetrieval=true&useSSL=false
-    username: bazaar
-    password: bazaar1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+  ##datasource:
+  ##  url: jdbc:mysql://localhost:3306/bazaar?allowPublicKeyRetrieval=true&useSSL=false
+  ##  username: bazaar
+  ##  password: bazaar1234
+  ##  driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     database: mysql
@@ -47,7 +47,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:mysql://rds-bazaar-dev-database-1.cdrfw0nsw2sr.ap-northeast-2.rds.amazonaws.com:3306/bazaar
+    url: jdbc:mysql://rds-bazaar-db.cdrfw0nsw2sr.ap-northeast-2.rds.amazonaws.com:3306/bazaar
     username: admin
     password: bazaar1234$
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -58,7 +58,7 @@ spring:
     show-sql: true
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   mvc:
     path match:
       matching-strategy: ant_path_matcher
@@ -81,5 +81,10 @@ logging:
   level:
     root: info
     org.springframework.web: info
-    org.hibernate: error
-  config: classpath:logback-dev.xml
+    org.hibernate: info
+springfox:
+  documentation:
+    swagger:
+      enabled: true
+    asciidoctor:
+      enabled: true

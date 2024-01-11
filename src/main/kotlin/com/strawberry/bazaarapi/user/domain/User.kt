@@ -17,7 +17,7 @@ import javax.persistence.*
 @Entity
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener::class)
-@Table(name = "\"user\"")
+@Table(name = "users")
 data class User(
 
     @Id
@@ -33,7 +33,7 @@ data class User(
 
     @JsonIgnore
     @Column(name = "password")
-    var passwordHashed: String = "",
+    var password: String = "",
 
     @Column(name = "address")
     var address: String = "",
@@ -59,7 +59,7 @@ data class User(
     @Column(name = "deleted", nullable = false, columnDefinition = "BIT default 0")
     var deleted: Boolean? = false,
 
-    ) : UserDetails {
+    )  {
     fun updateUserRole(userRole: Role) {
         when (userRole) {
             Role.MANAGER -> this.role = Role.MANAGER
@@ -72,8 +72,8 @@ data class User(
         this.enabled = enabled
     }
 
-    fun updatePassword(passwordHashed: String) {
-        this.passwordHashed = passwordHashed
+    fun updatePassword(password: String) {
+        this.password = password
     }
 
     fun updateLastLogin() {
@@ -84,31 +84,4 @@ data class User(
         this.deleted = true
     }
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority>? {
-        return Collections.singletonList(SimpleGrantedAuthority(role.name))
-    }
-
-    override fun getPassword(): String {
-        return passwordHashed
-    }
-
-    override fun getUsername(): String {
-        return email
-    }
-
-    override fun isAccountNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isAccountNonLocked(): Boolean {
-        return true
-    }
-
-    override fun isCredentialsNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isEnabled(): Boolean {
-        return enabled
-    }
 }

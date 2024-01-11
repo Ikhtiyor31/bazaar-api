@@ -1,10 +1,13 @@
 package com.strawberry.bazaarapi.common.security
 
+import com.strawberry.bazaarapi.user.domain.User
+import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
 import com.strawberry.bazaarapi.user.repository.UserRepository
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.filter.OncePerRequestFilter
@@ -30,10 +33,12 @@ class JwtAuthenticationFilter(
         val username =  userJwtTokenService.extractUsername(token)
 
         if (SecurityContextHolder.getContext().authentication == null) {
-            val userDetails = userRepository.findByEmail(username)
+            val user: User = userRepository.findByEmail(username) ?:
+                throw UsernameNotFoundException("username doesn't exit with email: $username")
 
-            if (userJwtTokenService.isTokenValid(token, userDetails)) {
-                val authToken = UsernamePasswordAuthenticationToken(userDetails, null, userDetails!!.authorities)
+            val authenticatedUser = AuthenticatedUser(user)
+            if (userJwtTokenService.isTokenValid(token, authenticatedUser)) {
+                val authToken = UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser!!.authorities)
                 SecurityContextHolder.getContext().authentication = authToken
             }
 

@@ -1,5 +1,8 @@
 package com.strawberry.bazaarapi.user.controller
 
+import com.strawberry.bazaarapi.common.exception.ExceptionMessage
+import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
+import com.strawberry.bazaarapi.common.exception.ForbiddenException
 import com.strawberry.bazaarapi.common.security.LoggedInUser
 import com.strawberry.bazaarapi.common.security.RoleMapping
 import com.strawberry.bazaarapi.common.validation.ValidationSequence
@@ -34,12 +37,7 @@ class UserController(
         return ResponseEntity.ok(userService.verifyEmail(accountVerificationRequest))
     }
 
-    @RoleMapping(Role.ADMIN)
-    @PatchMapping("/update-role")
-    fun updateUserRole(@RequestBody updateUserRoleDto: UpdateUserRoleDto): ResponseEntity<UpdateUserRoleDto> {
-        return ResponseEntity.ok(userService.updateUserRole(updateUserRoleDto))
-    }
-
+    @RoleMapping(Role.USER)
     @PostMapping("/token/refresh")
     fun refreshToken(@RequestBody refreshTokenRequest: RefreshTokenRequest): ResponseEntity<Any> {
         return ResponseEntity.ok(
@@ -70,6 +68,9 @@ class UserController(
 
     @GetMapping("/{userId}")
     fun getUsers(@PathVariable("userId") userId: Long): ResponseEntity<Any> {
+        if (userId == 12L)
+            throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
+
         return ResponseEntity.ok().body(userService.getUser(userId))
     }
 }

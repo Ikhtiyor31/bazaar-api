@@ -7,7 +7,7 @@ import javax.persistence.*
 
 @Entity
 @DynamicUpdate
-@Table(name = "email_verification_code")
+@Table(name = "email_verification_codes")
 data class EmailVerificationCode(
 
     @Id
