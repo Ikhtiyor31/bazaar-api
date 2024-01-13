@@ -1,8 +1,5 @@
 package com.strawberry.bazaarapi.user.controller
 
-import com.strawberry.bazaarapi.common.exception.ExceptionMessage
-import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
-import com.strawberry.bazaarapi.common.exception.ForbiddenException
 import com.strawberry.bazaarapi.common.security.LoggedInUser
 import com.strawberry.bazaarapi.common.security.RoleMapping
 import com.strawberry.bazaarapi.common.validation.ValidationSequence
@@ -66,11 +63,9 @@ class UserController(
         return ResponseEntity.ok(userService.resendVerificationCode(email))
     }
 
+    @RoleMapping(Role.USER)
     @GetMapping("/{userId}")
-    fun getUsers(@PathVariable("userId") userId: Long): ResponseEntity<Any> {
-        if (userId == 12L)
-            throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
-
-        return ResponseEntity.ok().body(userService.getUser(userId))
+    fun getUserInfo(@PathVariable("userId") userId: Long): ResponseEntity<UserProfile> {
+        return ResponseEntity.ok().body(userService.getUserInfo(userId))
     }
 }

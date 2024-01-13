@@ -1,6 +1,5 @@
 package com.strawberry.bazaarapi.user.service
 
-import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.dto.*
 
 interface UserService {
@@ -12,5 +11,5 @@ interface UserService {
     fun deleteUserAccount(email: String): String
     fun resendVerificationCode(email: String): UserSignupResponse
     fun findUserByEmail(email: String): AuthenticatedUser
-    fun getUser(userId: Long): User
+    fun getUserInfo(userId: Long): UserProfile
 }

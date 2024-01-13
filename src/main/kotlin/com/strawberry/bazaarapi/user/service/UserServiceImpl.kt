@@ -3,16 +3,16 @@ package com.strawberry.bazaarapi.user.service
 import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
 import com.strawberry.bazaarapi.common.exception.ResourceNotFoundException
-import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.email.*
-import com.strawberry.bazaarapi.email.repository.EmailVerificationRepository
 import com.strawberry.bazaarapi.email.repository.EmailConfirmationRepositoryImpl
+import com.strawberry.bazaarapi.email.repository.EmailVerificationRepository
 import com.strawberry.bazaarapi.email.service.EmailService
 import com.strawberry.bazaarapi.user.domain.EmailVerificationCode
 import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.dto.*
-import com.strawberry.bazaarapi.user.repository.UserRepositorySupport
 import com.strawberry.bazaarapi.user.repository.UserRepository
+import com.strawberry.bazaarapi.user.repository.UserRepositorySupport
+import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.util.UserUtil
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+
 
 @Service
 @Transactional
@@ -34,14 +35,11 @@ class UserServiceImpl(
 ) : UserService {
 
     override fun createUser(userSignupRequest: UserSignupRequest): UserSignupResponse {
-
         var existingUser = userRepository.findByEmail(userSignupRequest.email)
-
         val authCode = UserUtil.generateAuthorizationCode(FOUR_DIGIT_CODE)
 
-        if (existingUser != null && existingUser.enabled) {
+        if (existingUser != null && existingUser.enabled)
             throw ApiAuthenticationException(ExceptionMessage.USER_ALREADY_SIGNUP)
-        }
 
         val isEmailVerificationCodeAlreadyExist = emailVerificationRepository.findTopByUserIdOrderByIdDesc(existingUser?.id)
         val currentTime = getCurrentLocalTimeInUZT()
@@ -169,9 +167,18 @@ class UserServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun getUser(userId: Long): User {
-        return userRepository.findById(userId)
-            .orElseThrow{ResourceNotFoundException(ExceptionMessage.USER_NOT_EXIST)}
+    override fun getUserInfo(userId: Long): UserProfile {
+        val user = userRepository.findById(userId)
+            .orElseThrow { ResourceNotFoundException(ExceptionMessage.USER_NOT_EXIST) }
+        val userProfile = UserProfile(
+            user.name,
+            user.email,
+            user.phoneNumber,
+            user.profileUrl,
+            user.address
+        )
+
+        return userProfile
     }
 
     override fun deleteUserAccount(email: String): String {
