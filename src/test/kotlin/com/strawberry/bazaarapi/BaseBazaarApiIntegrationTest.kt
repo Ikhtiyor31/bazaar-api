@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.domain.UserToken
+import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
 import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
 import com.strawberry.bazaarapi.util.UserUtil
@@ -75,47 +76,62 @@ class BaseBazaarApiIntegrationTest {
      }
 
      fun authenticateUser(): User {
-          val authToken = UsernamePasswordAuthenticationToken(getUser(), null, getUser().authorities)
+          val authToken = UsernamePasswordAuthenticationToken(getAuthenticatedUser(), null, getAuthenticatedUser().authorities)
           SecurityContextHolder.getContext().authentication = authToken
 
-          Mockito.`when`(userJwtTokenService.getUserAccessToken(getUser().username))
-               .thenReturn(getUserToken(getUser().username))
+          Mockito.`when`(userJwtTokenService.getUserAccessToken(getAuthenticatedUser().username))
+               .thenReturn(getUserToken(getAuthenticatedUser().username))
           SecurityContextHolder.getContext().authentication.principal as User
 
           return SecurityContextHolder.getContext().authentication.principal as User
      }
 
      fun authenticateAdminUser(): User {
-          val authToken = UsernamePasswordAuthenticationToken(getAdminUser(), null, getAdminUser().authorities)
+          val authToken = UsernamePasswordAuthenticationToken(getAuthenticatedAdmin(), null, getAuthenticatedAdmin().authorities)
           SecurityContextHolder.getContext().authentication = authToken
 
-          Mockito.`when`(userJwtTokenService.getUserAccessToken(getUser().username))
-               .thenReturn(getUserToken(getAdminUser().username))
+          Mockito.`when`(userJwtTokenService.getUserAccessToken(getAuthenticatedUser().username))
+               .thenReturn(getUserToken(getAuthenticatedAdmin().username))
           SecurityContextHolder.getContext().authentication.principal as User
 
           return SecurityContextHolder.getContext().authentication.principal as User
      }
 
      companion object {
+          fun getAuthenticatedUser(): AuthenticatedUser {
+               val user =  User().apply {
+                    this.id = 1L
+                    this.name = "abdul"
+                    this.email = "test@gmail.com"
+                    this.password = "123asfsfh"
+                    this.role = Role.USER
+                    this.joinedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
+                    this.lastLoggedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
+               }
+               return AuthenticatedUser(user)
+          }
+
+          fun getAuthenticatedAdmin(): AuthenticatedUser {
+               val user = User().apply {
+                    this.id = 1L
+                    this.name = "abdul"
+                    this.email = "test@gmail.com"
+                    this.password = "123asfsfh"
+                    this.role = Role.ADMIN
+                    this.joinedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
+                    this.lastLoggedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
+               }
+
+               return AuthenticatedUser(user)
+          }
+
           fun getUser(): User {
                return User().apply {
                     this.id = 1L
                     this.name = "abdul"
                     this.email = "test@gmail.com"
-                    this.passwordHashed = "123asfsfh"
+                    this.password = "123asfsfh"
                     this.role = Role.USER
-                    this.joinedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
-                    this.lastLoggedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
-               }
-          }
-
-          fun getAdminUser(): User {
-               return User().apply {
-                    this.id = 1L
-                    this.name = "abdul"
-                    this.email = "test@gmail.com"
-                    this.passwordHashed = "123asfsfh"
-                    this.role = Role.ADMIN
                     this.joinedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
                     this.lastLoggedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
                }

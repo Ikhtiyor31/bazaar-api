@@ -7,7 +7,6 @@ import com.strawberry.bazaarapi.email.service.EmailService
 import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.dto.UserSignupRequest
 import com.strawberry.bazaarapi.user.dto.UserSignupResponse
-import com.strawberry.bazaarapi.user.repository.UserDeviceRepository
 import com.strawberry.bazaarapi.user.repository.UserRepository
 import com.strawberry.bazaarapi.user.repository.UserRepositorySupportImpl
 import org.assertj.core.api.Assertions.assertThat
@@ -70,7 +69,7 @@ class UserServiceTest {
         val hashedPassword = "hashedPassword123"
         val user = User().apply {
             this.email = userSignupRequest.email
-            this.passwordHashed = hashedPassword
+            this.password = hashedPassword
         }
         val expectedResponse = UserSignupResponse(
             userId = user.id,
@@ -102,7 +101,7 @@ class UserServiceTest {
         val createUser = User().apply {
             id = 1L
             email = userEmail
-            passwordHashed = "password1234"
+            password = "password1234"
             enabled = true
         }
         given(userRepository.findByEmail(userEmail)).willReturn(createUser)

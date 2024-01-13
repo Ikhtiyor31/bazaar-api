@@ -137,8 +137,8 @@ class UserControllerTest: BaseBazaarApiIntegrationTest() {
     @Test
     fun refreshToken() {
         val refreshTokenRequest = RefreshTokenRequest(
+            authenticateUser().email,
             "eyasdflkjasfLKJlajsfl;kj23lkjasflkj",
-            authenticateUser().username
         )
 
         `when`(userJwtTokenService.generateUserRefreshToken(refreshTokenRequest))

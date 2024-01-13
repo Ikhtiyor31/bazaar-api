@@ -17,7 +17,7 @@ class MockUserFactory(
         val user = User().apply {
             this.name = "abdul"
             this.email = "test@gmail.com"
-            this.passwordHashed = "123asfsfh"
+            this.password = "123asfsfh"
             this.role = Role.USER
         }
         return userRepository.save(user)

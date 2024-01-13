@@ -1,17 +1,12 @@
 package com.strawberry.bazaarapi.user.domain
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.util.UserRoleConverter
 import org.hibernate.annotations.DynamicUpdate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
-import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -28,10 +23,12 @@ data class User(
     @Column(name = "name")
     var name: String = "",
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     var email: String = "",
 
-    @JsonIgnore
+    @Column(name = "phone_number", unique = true, nullable = false)
+    var phoneNumber: String = "",
+
     @Column(name = "password")
     var password: String = "",
 
@@ -48,11 +45,9 @@ data class User(
     @Convert(converter = UserRoleConverter::class)
     var role: Role = Role.USER,
 
-    @JsonIgnore
     @Column(name = "join_dt")
     var joinedAt: LocalDateTime? = getCurrentLocalTimeInUZT(),
 
-    @JsonIgnore
     @Column(name = "last_login_dt")
     var lastLoggedAt: LocalDateTime? = getCurrentLocalTimeInUZT(),
 
@@ -83,5 +78,4 @@ data class User(
     fun delete() {
         this.deleted = true
     }
-
 }
