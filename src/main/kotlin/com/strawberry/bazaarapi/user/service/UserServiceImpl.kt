@@ -173,7 +173,6 @@ class UserServiceImpl(
         val userProfile = UserProfile(
             user.name,
             user.email,
-            user.phoneNumber,
             user.profileUrl,
             user.address
         )

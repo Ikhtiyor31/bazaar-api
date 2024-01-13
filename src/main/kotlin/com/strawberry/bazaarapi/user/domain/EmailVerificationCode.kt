@@ -27,11 +27,9 @@ data class EmailVerificationCode(
     @Column(name = "confirmedAt")
     var confirmedAt: LocalDateTime? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY,
-        cascade = [CascadeType.PERSIST, CascadeType.REMOVE], optional = true
-    )
-    @JoinColumn(name = "user_id")
-    var user: User? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    var user: User = User()
 
 ): BaseEntity() {
     fun updateConfirmedAt(localDateTime: LocalDateTime) {

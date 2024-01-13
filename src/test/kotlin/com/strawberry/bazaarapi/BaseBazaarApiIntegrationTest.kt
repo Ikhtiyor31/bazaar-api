@@ -75,26 +75,26 @@ class BaseBazaarApiIntegrationTest {
           objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
      }
 
-     fun authenticateUser(): User {
+     fun authenticateUser(): AuthenticatedUser {
           val authToken = UsernamePasswordAuthenticationToken(getAuthenticatedUser(), null, getAuthenticatedUser().authorities)
           SecurityContextHolder.getContext().authentication = authToken
 
           Mockito.`when`(userJwtTokenService.getUserAccessToken(getAuthenticatedUser().username))
                .thenReturn(getUserToken(getAuthenticatedUser().username))
-          SecurityContextHolder.getContext().authentication.principal as User
+          SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
 
-          return SecurityContextHolder.getContext().authentication.principal as User
+          return SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
      }
 
-     fun authenticateAdminUser(): User {
+     fun authenticateAdminUser(): AuthenticatedUser {
           val authToken = UsernamePasswordAuthenticationToken(getAuthenticatedAdmin(), null, getAuthenticatedAdmin().authorities)
           SecurityContextHolder.getContext().authentication = authToken
 
           Mockito.`when`(userJwtTokenService.getUserAccessToken(getAuthenticatedUser().username))
                .thenReturn(getUserToken(getAuthenticatedAdmin().username))
-          SecurityContextHolder.getContext().authentication.principal as User
+          SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
 
-          return SecurityContextHolder.getContext().authentication.principal as User
+          return SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
      }
 
      companion object {

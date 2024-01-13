@@ -41,7 +41,16 @@ class UserDeviceControllerTest : BaseBazaarApiIntegrationTest() {
             appVersion = "1.0.2"
         )
 
-        `when`(userDeviceService.createUserDevice(authenticateUser(), userDeviceDto)).thenReturn(userDeviceDto.toEntity(getUser()).toResponse())
+        `when`(
+            userDeviceService.createUserDevice(
+                authenticateUser().userInfo(),
+                userDeviceDto
+            )
+        ).thenReturn(
+            userDeviceDto.toEntity(
+                getUser()
+            ).toResponse()
+        )
 
         mockMvc.perform(
             post("/api/v1/user-device")
@@ -113,7 +122,7 @@ class UserDeviceControllerTest : BaseBazaarApiIntegrationTest() {
     @Test
     fun isUserDeviceExist() {
         val deviceKey = "afdadsfadfasdfasdfasdfasdf"
-        given(userDeviceService.findUserDevice(authenticateUser(), deviceKey)).willReturn(UserDeviceExistResponse(TRUE))
+        given(userDeviceService.findUserDevice(authenticateUser().userInfo(), deviceKey)).willReturn(UserDeviceExistResponse(TRUE))
 
 
         mockMvc.perform(

@@ -24,7 +24,7 @@ class AdminController : BaseBazaarApiIntegrationTest() {
 
     @Test
     fun updateUserRoleTest() {
-        val updateUserRoleDto = UpdateUserRoleDto(authenticateAdminUser().email, Role.MANAGER)
+        val updateUserRoleDto = UpdateUserRoleDto(authenticateAdminUser().username, Role.MANAGER)
 
         Mockito.`when`(adminService.updateUserRole(updateUserRoleDto))
             .thenReturn(updateUserRoleDto.toResponse(updateUserRoleDto.email, updateUserRoleDto.userRole))

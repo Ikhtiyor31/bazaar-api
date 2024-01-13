@@ -26,9 +26,6 @@ data class User(
     @Column(name = "email", unique = true, nullable = false)
     var email: String = "",
 
-    @Column(name = "phone_number", unique = true, nullable = false)
-    var phoneNumber: String = "",
-
     @Column(name = "password")
     var password: String = "",
 
@@ -53,6 +50,9 @@ data class User(
 
     @Column(name = "deleted", nullable = false, columnDefinition = "BIT default 0")
     var deleted: Boolean? = false,
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val devices: List<UserDevice> = mutableListOf()
 
     )  {
     fun updateUserRole(userRole: Role) {

@@ -3,7 +3,6 @@ package com.strawberry.bazaarapi.user.controller
 import com.strawberry.bazaarapi.common.security.LoggedInUser
 import com.strawberry.bazaarapi.common.security.RoleMapping
 import com.strawberry.bazaarapi.common.validation.ValidationSequence
-import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.dto.*
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
@@ -54,8 +53,8 @@ class UserController(
 
     @RoleMapping(Role.USER)
     @DeleteMapping("/delete-account")
-    fun deleteUserAccount(@LoggedInUser user: User): ResponseEntity<String> {
-        return ResponseEntity.ok(userService.deleteUserAccount(user.email))
+    fun deleteUserAccount(@LoggedInUser authenticatedUser: AuthenticatedUser): ResponseEntity<String> {
+        return ResponseEntity.ok(userService.deleteUserAccount(authenticatedUser.username))
     }
 
     @PostMapping("/resend-verification-code/{email}")

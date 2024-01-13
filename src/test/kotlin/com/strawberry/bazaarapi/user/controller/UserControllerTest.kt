@@ -2,7 +2,6 @@ package com.strawberry.bazaarapi.user.controller
 
 import com.strawberry.bazaarapi.BaseBazaarApiIntegrationTest
 import com.strawberry.bazaarapi.user.dto.*
-import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.repository.UserRepository
 import com.strawberry.bazaarapi.user.service.UserService
 import org.junit.jupiter.api.Test
@@ -137,7 +136,7 @@ class UserControllerTest: BaseBazaarApiIntegrationTest() {
     @Test
     fun refreshToken() {
         val refreshTokenRequest = RefreshTokenRequest(
-            authenticateUser().email,
+            authenticateUser().username,
             "eyasdflkjasfLKJlajsfl;kj23lkjasflkj",
         )
 
@@ -234,7 +233,7 @@ class UserControllerTest: BaseBazaarApiIntegrationTest() {
 
     @Test
     fun deleteUserAccount() {
-        val email = authenticateUser().email
+        val email = authenticateUser().username
         given(userService.deleteUserAccount(email)).willReturn("OK")
 
         mockMvc.perform(

@@ -42,4 +42,8 @@ class AuthenticatedUser (
     fun getRole(): Role {
         return user.role
     }
+
+    fun userInfo(): User {
+        return user
+    }
 }
