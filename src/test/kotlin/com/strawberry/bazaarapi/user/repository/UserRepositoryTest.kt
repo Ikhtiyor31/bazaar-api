@@ -2,8 +2,6 @@ package com.strawberry.bazaarapi.user.repository
 
 import com.strawberry.bazaarapi.common.config.QueryDslConfig
 import com.strawberry.bazaarapi.user.domain.User
-import com.strawberry.bazaarapi.user.domain.UserDevice
-import com.strawberry.bazaarapi.user.enums.PlatformType
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -66,7 +64,7 @@ internal class UserRepositoryTest(
         val duplicatedUser = User(
             name = "Duplicated User",
             email = userEmail,
-            passwordHashed = "password"
+            password = "password"
         )
 
         val savedUser = userRepository.findByEmail(userEmail)
@@ -82,7 +80,7 @@ internal class UserRepositoryTest(
             return User().apply {
                 this.name = "abdul"
                 this.email = userEmail
-                this.passwordHashed = userPassword
+                this.password = userPassword
             }
         }
     }

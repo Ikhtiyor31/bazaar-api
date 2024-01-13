@@ -1,23 +1,26 @@
 package com.strawberry.bazaarapi.user.service
 
-import com.strawberry.bazaarapi.common.exception.ApiRequestException
+import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
-import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
+import com.strawberry.bazaarapi.common.exception.ResourceNotFoundException
 import com.strawberry.bazaarapi.email.*
-import com.strawberry.bazaarapi.email.repository.EmailVerificationRepository
 import com.strawberry.bazaarapi.email.repository.EmailConfirmationRepositoryImpl
+import com.strawberry.bazaarapi.email.repository.EmailVerificationRepository
 import com.strawberry.bazaarapi.email.service.EmailService
 import com.strawberry.bazaarapi.user.domain.EmailVerificationCode
 import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.dto.*
-import com.strawberry.bazaarapi.user.repository.UserRepositorySupport
 import com.strawberry.bazaarapi.user.repository.UserRepository
+import com.strawberry.bazaarapi.user.repository.UserRepositorySupport
+import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.util.UserUtil
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+
 
 @Service
 @Transactional
@@ -32,25 +35,22 @@ class UserServiceImpl(
 ) : UserService {
 
     override fun createUser(userSignupRequest: UserSignupRequest): UserSignupResponse {
-
         var existingUser = userRepository.findByEmail(userSignupRequest.email)
-
         val authCode = UserUtil.generateAuthorizationCode(FOUR_DIGIT_CODE)
 
-        if (existingUser != null && existingUser.isEnabled) {
-            throw ApiRequestException(ExceptionMessage.USER_ALREADY_SIGNUP, HttpStatus.BAD_REQUEST)
-        }
+        if (existingUser != null && existingUser.enabled)
+            throw ApiAuthenticationException(ExceptionMessage.USER_ALREADY_SIGNUP)
 
         val isEmailVerificationCodeAlreadyExist = emailVerificationRepository.findTopByUserIdOrderByIdDesc(existingUser?.id)
         val currentTime = getCurrentLocalTimeInUZT()
 
         if (existingUser != null && isEmailVerificationCodeAlreadyExist != null && isEmailVerificationCodeAlreadyExist.expiresAt!!.isAfter(currentTime))
-            throw ApiRequestException(ExceptionMessage.USER_ALREADY_SIGNUP)
+            throw ApiAuthenticationException(ExceptionMessage.USER_ALREADY_SIGNUP)
 
         if (existingUser == null) {
             existingUser = User().apply {
                 this.email = userSignupRequest.email
-                this.passwordHashed = passwordEncoder.encode(userSignupRequest.password)
+                this.password = passwordEncoder.encode(userSignupRequest.password)
             }
             userRepository.save(existingUser)
         } else {
@@ -82,20 +82,20 @@ class UserServiceImpl(
 
     override fun verifyEmail(accountVerificationRequest: AccountVerificationRequest): AccountVerificationResponse {
         val user = userRepository.findByEmail(accountVerificationRequest.email)
-            ?: throw ApiRequestException(ExceptionMessage.USER_NOT_SIGNUP_YET)
+            ?: throw ApiAuthenticationException(ExceptionMessage.USER_NOT_SIGNUP_YET)
 
 
         val emailConfirmationCode = emailConfirmationRepositoryImpl.findConfirmationCodeByUserId(
             user.id,
             accountVerificationRequest.confirmationCode
-        ) ?: throw ApiRequestException(ExceptionMessage.INVALID_AUTHORIZATION_NUMBER)
+        ) ?: throw ApiAuthenticationException(ExceptionMessage.INVALID_AUTHORIZATION_NUMBER)
 
         if (emailConfirmationCode.confirmedAt != null) {
-            throw ApiRequestException(ExceptionMessage.EMAIL_ALREADY_CONFIRMED, HttpStatus.BAD_REQUEST)
+            throw ApiAuthenticationException(ExceptionMessage.EMAIL_ALREADY_CONFIRMED)
         }
 
         if (emailConfirmationCode.confirmationCode != accountVerificationRequest.confirmationCode) {
-            throw ApiRequestException(ExceptionMessage.INVALID_AUTHORIZATION_NUMBER)
+            throw ApiAuthenticationException(ExceptionMessage.INVALID_AUTHORIZATION_NUMBER)
         }
 
 
@@ -109,16 +109,16 @@ class UserServiceImpl(
 
     override fun signInUser(userLoginRequest: UserLoginRequest): UserLoginResponse {
         val user = userRepository.findByEmail(userLoginRequest.email)
-            ?: throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.UNAUTHORIZED)
+            ?: throw ApiAuthenticationException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD)
 
-        if (!passwordEncoder.matches(userLoginRequest.password, user.passwordHashed))
-            throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.UNAUTHORIZED)
+        if (!passwordEncoder.matches(userLoginRequest.password, user.password))
+            throw ApiAuthenticationException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD)
 
         if (user.deleted == true)
-            throw ApiRequestException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD, HttpStatus.UNAUTHORIZED)
+            throw ApiAuthenticationException(ExceptionMessage.INVALID_USERNAME_OR_PASSWORD)
 
         if (!user.enabled) {
-            throw ApiRequestException(ExceptionMessage.EMAIL_NOT_CONFIRMED_YET, HttpStatus.UNAUTHORIZED)
+            throw ApiAuthenticationException(ExceptionMessage.EMAIL_NOT_CONFIRMED_YET)
         }
 
         user.updateLastLogin()
@@ -128,12 +128,12 @@ class UserServiceImpl(
 
     override fun forgotPassword(email: String): ForgotPasswordResponse {
         val user = userRepository.findByEmail(email)
-            ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
+            ?: throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
-        if (!user.isEnabled)
-            throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST, HttpStatus.OK)
+        if (!user.enabled)
+            throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
-        val authCode = UserUtil.generateAuthorizationCode(6)
+        val authCode = UserUtil.generateAuthorizationCode(4)
 
         val emailVerificationCode = EmailVerificationCode().apply {
             this.confirmationCode = authCode
@@ -152,12 +152,12 @@ class UserServiceImpl(
 
     override fun resetPassword(passwordResetRequest: PasswordResetRequest): PasswordResetResponse {
         val user = userRepository.findByEmail(passwordResetRequest.email)
-            ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
+            ?: throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
-        if (!user.isEnabled)
-            throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST, HttpStatus.OK)
+        if (!user.enabled)
+            throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
         if (passwordResetRequest.newPassword != passwordResetRequest.confirmNewPassword)
-            throw ApiRequestException(ExceptionMessage.PASSWORD_MISMATCH, HttpStatus.OK)
+            throw ApiAuthenticationException(ExceptionMessage.PASSWORD_MISMATCH)
 
         val hashedPassword = passwordEncoder.encode(passwordResetRequest.newPassword)
 
@@ -166,25 +166,22 @@ class UserServiceImpl(
         return PasswordResetResponse(HttpStatus.OK, "Your password is updated")
     }
 
-
-    override fun updateUserRole(updateUserRoleDto: UpdateUserRoleDto): UpdateUserRoleDto {
-        val user = userRepository.findByEmail(updateUserRoleDto.email)
-            ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
-
-        user.updateUserRole(updateUserRoleDto.userRole)
-
-        return UpdateUserRoleDto(user.email, user.role)
-    }
-
-
     @Transactional(readOnly = true)
-    override fun getUser(userId: Long): User {
-        return userRepository.findById(userId)
-            .orElseThrow{ApiRequestException(ExceptionMessage.USER_NOT_EXIST, "can not find user id $userId", HttpStatus.NOT_FOUND)}
+    override fun getUserInfo(userId: Long): UserProfile {
+        val user = userRepository.findById(userId)
+            .orElseThrow { ResourceNotFoundException(ExceptionMessage.USER_NOT_EXIST) }
+        val userProfile = UserProfile(
+            user.name,
+            user.email,
+            user.profileUrl,
+            user.address
+        )
+
+        return userProfile
     }
 
     override fun deleteUserAccount(email: String): String {
-        val user = userRepository.findByEmail(email) ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
+        val user = userRepository.findByEmail(email) ?: throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
         user.delete()
 
@@ -193,10 +190,10 @@ class UserServiceImpl(
 
     override fun resendVerificationCode(email: String): UserSignupResponse {
         val user = userRepository.findByEmail(email)
-            ?: throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST)
+            ?: throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
-        if (user.isEnabled)
-            throw ApiRequestException(ExceptionMessage.USER_ALREADY_SIGNUP)
+        if (user.enabled)
+            throw ApiAuthenticationException(ExceptionMessage.USER_ALREADY_SIGNUP)
 
         val authCode = UserUtil.generateAuthorizationCode(6)
         sendVerificationEmail(user, authCode)
@@ -207,6 +204,13 @@ class UserServiceImpl(
             verificationCode = authCode
         )
 
+    }
+
+    override fun findUserByEmail(email: String): AuthenticatedUser {
+        val user = userRepository.findByEmail(email)
+            ?: throw UsernameNotFoundException("user doesn't exist with the email: $email")
+
+        return AuthenticatedUser(user)
     }
 
     companion object {

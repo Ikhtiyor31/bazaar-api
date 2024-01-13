@@ -2,17 +2,16 @@ package com.strawberry.bazaarapi.user.service
 
 
 import com.strawberry.bazaarapi.user.domain.UserToken
-import com.strawberry.bazaarapi.common.exception.ApiRequestException
+import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
 import com.strawberry.bazaarapi.user.repository.UserJwtAccessTokenRepository
-import com.strawberry.bazaarapi.user.domain.User
+import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
 import com.strawberry.bazaarapi.user.dto.RefreshTokenRequest
 import com.strawberry.bazaarapi.user.dto.UserLoginResponse
 import com.strawberry.bazaarapi.util.UserUtil.ACCESS_TOKEN_LIFETIME_HOUR
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -45,24 +44,19 @@ class UserJwtTokenServiceImpl(
         return extractClaims(token, Claims.SUBJECT).toString()
     }
 
-    override fun isTokenValid(token: String, user: User?): Boolean {
+    override fun isTokenValid(token: String, authenticatedUser: AuthenticatedUser): Boolean {
         val username = extractUsername(token)
-        if (user == null)
-            return false
 
-        return username == user.username && !isTokenExpired(token)
+        return username == authenticatedUser.username && !isTokenExpired(token)
 
     }
 
     override fun generateUserRefreshToken(refreshTokenRequest: RefreshTokenRequest): UserLoginResponse {
         val userToken = userJwtAccessTokenRepository.findTopByUsernameOrderByIdDesc(refreshTokenRequest.username)
-            ?: throw ApiRequestException(
-                ExceptionMessage.USER_NOT_EXIST,
-                HttpStatus.OK
-            )
+            ?: throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
         if (userToken.username != refreshTokenRequest.username && refreshTokenRequest.refreshToken != userToken.refreshToken)
-            throw ApiRequestException(ExceptionMessage.USER_NOT_EXIST, HttpStatus.OK)
+            throw ApiAuthenticationException(ExceptionMessage.USER_NOT_EXIST)
 
         val accessToken = generateAccessToken(refreshTokenRequest.username)
         val newRefreshToken = generateRefreshToken(refreshTokenRequest.username)

@@ -2,7 +2,6 @@ package com.strawberry.bazaarapi.user.controller
 
 import com.strawberry.bazaarapi.BaseBazaarApiIntegrationTest
 import com.strawberry.bazaarapi.user.dto.*
-import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.repository.UserRepository
 import com.strawberry.bazaarapi.user.service.UserService
 import org.junit.jupiter.api.Test
@@ -135,40 +134,10 @@ class UserControllerTest: BaseBazaarApiIntegrationTest() {
     }
 
     @Test
-    fun updateUserRoleTest() {
-        val updateUserRoleDto = UpdateUserRoleDto(authenticateAdminUser().email, Role.MANAGER)
-
-        `when`(userService.updateUserRole(updateUserRoleDto))
-            .thenReturn(updateUserRoleDto.toResponse(updateUserRoleDto.email, updateUserRoleDto.userRole))
-
-        mockMvc.perform(
-            patch("/api/v1/users/update-role")
-            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .header(ACCEPT, APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(updateUserRoleDto)))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(status().isOk)
-            .andDo(MockMvcRestDocumentation.document("update-role",
-                requestHeaders(
-                    headerWithName(ACCEPT).description("accept"),
-                    headerWithName(CONTENT_TYPE).description("content type")
-                ),
-                requestFields(
-                    fieldWithPath("email").type(JsonFieldType.STRING).description("user email address"),
-                    fieldWithPath("userRole").type(JsonFieldType.STRING).description("user role to be updated")
-                ),
-                responseFields(
-                    fieldWithPath("email").type(JsonFieldType.STRING).description("user email address"),
-                    fieldWithPath("userRole").type(JsonFieldType.STRING).description("updated user role")
-                ))
-            )
-    }
-
-    @Test
     fun refreshToken() {
         val refreshTokenRequest = RefreshTokenRequest(
+            authenticateUser().username,
             "eyasdflkjasfLKJlajsfl;kj23lkjasflkj",
-            authenticateUser().username
         )
 
         `when`(userJwtTokenService.generateUserRefreshToken(refreshTokenRequest))
@@ -264,7 +233,7 @@ class UserControllerTest: BaseBazaarApiIntegrationTest() {
 
     @Test
     fun deleteUserAccount() {
-        val email = authenticateUser().email
+        val email = authenticateUser().username
         given(userService.deleteUserAccount(email)).willReturn("OK")
 
         mockMvc.perform(

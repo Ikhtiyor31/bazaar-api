@@ -8,7 +8,7 @@ import javax.persistence.*
 
 
 @Entity
-@Table(name = "user_device")
+@Table(name = "user_devices")
 @Where(clause = "deleted=false")
 data class UserDevice(
 

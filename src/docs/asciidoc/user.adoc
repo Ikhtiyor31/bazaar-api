@@ -19,12 +19,6 @@ operation::signin[snippets='http-request,request-headers,request-fields,http-res
 operation::verify-email[snippets='http-request,request-headers,request-fields,http-response,response-fields']
 ****
 
-=== Update User Role
-==== successful case
-****
-operation::update-role[snippets='http-request,request-headers,request-fields,http-response,response-fields']
-****
-
 === Refresh Token
 ==== successful case
 ****

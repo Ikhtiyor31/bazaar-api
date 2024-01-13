@@ -1,23 +1,18 @@
 package com.strawberry.bazaarapi.user.domain
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.util.UserRoleConverter
 import org.hibernate.annotations.DynamicUpdate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
-import java.util.*
 import javax.persistence.*
 
 @Entity
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener::class)
-@Table(name = "\"user\"")
+@Table(name = "users")
 data class User(
 
     @Id
@@ -28,12 +23,11 @@ data class User(
     @Column(name = "name")
     var name: String = "",
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     var email: String = "",
 
-    @JsonIgnore
     @Column(name = "password")
-    var passwordHashed: String = "",
+    var password: String = "",
 
     @Column(name = "address")
     var address: String = "",
@@ -48,18 +42,19 @@ data class User(
     @Convert(converter = UserRoleConverter::class)
     var role: Role = Role.USER,
 
-    @JsonIgnore
     @Column(name = "join_dt")
     var joinedAt: LocalDateTime? = getCurrentLocalTimeInUZT(),
 
-    @JsonIgnore
     @Column(name = "last_login_dt")
     var lastLoggedAt: LocalDateTime? = getCurrentLocalTimeInUZT(),
 
     @Column(name = "deleted", nullable = false, columnDefinition = "BIT default 0")
     var deleted: Boolean? = false,
 
-    ) : UserDetails {
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val devices: List<UserDevice> = mutableListOf()
+
+    )  {
     fun updateUserRole(userRole: Role) {
         when (userRole) {
             Role.MANAGER -> this.role = Role.MANAGER
@@ -72,8 +67,8 @@ data class User(
         this.enabled = enabled
     }
 
-    fun updatePassword(passwordHashed: String) {
-        this.passwordHashed = passwordHashed
+    fun updatePassword(password: String) {
+        this.password = password
     }
 
     fun updateLastLogin() {
@@ -82,33 +77,5 @@ data class User(
 
     fun delete() {
         this.deleted = true
-    }
-
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority>? {
-        return Collections.singletonList(SimpleGrantedAuthority(role.name))
-    }
-
-    override fun getPassword(): String {
-        return passwordHashed
-    }
-
-    override fun getUsername(): String {
-        return email
-    }
-
-    override fun isAccountNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isAccountNonLocked(): Boolean {
-        return true
-    }
-
-    override fun isCredentialsNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isEnabled(): Boolean {
-        return enabled
     }
 }

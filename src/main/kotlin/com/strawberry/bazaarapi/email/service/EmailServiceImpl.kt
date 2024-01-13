@@ -1,12 +1,11 @@
 package com.strawberry.bazaarapi.email.service
 
-import com.strawberry.bazaarapi.common.exception.ApiRequestException
+import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
 import com.strawberry.bazaarapi.email.EmailDetails
 import org.hibernate.bytecode.BytecodeLogging.LOGGER
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.scheduling.annotation.Async
@@ -33,7 +32,7 @@ class EmailServiceImpl(
             javaMailSender.send(mimeMessage)
         } catch (e: Exception) {
             LOGGER.error("failed to send email")
-            throw ApiRequestException(ExceptionMessage.EMAIL_SENDING_ERROR, HttpStatus.BAD_GATEWAY);
+            throw ApiAuthenticationException(ExceptionMessage.EMAIL_SENDING_ERROR)
         }
     }
 

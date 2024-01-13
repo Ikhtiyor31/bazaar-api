@@ -13,7 +13,7 @@ class UserRepositorySupportImpl(
     override fun updateUserPassword(password: String, userId: Long) {
         queryFactory
             .update(user)
-            .set(user.passwordHashed, password)
+            .set(user.password, password)
             .where(user.id.eq(userId))
             .execute()
     }

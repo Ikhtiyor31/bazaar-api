@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -35,7 +37,7 @@ class SecurityConfig(
             "/api/v1/users/signup",
             "/api/v1/users/verify-email",
             "/api/v1/users/signin",
-            "/api/v1/users/users",
+            "/api/v1/users/**",
             "/api/v1/users/forgot-password",
             "/api/v1/users/reset-password",
             "/swagger-ui/**",
@@ -53,6 +55,17 @@ class SecurityConfig(
         return http.build()
     }
 
+    @Bean
+    fun webSecurityCustomizer(): WebSecurityCustomizer {
+        return WebSecurityCustomizer { web: WebSecurity ->
+            web.ignoring()
+                .antMatchers("/resources/**")
+                .antMatchers("/static/**")
+                .antMatchers("/swagger-ui/**")
+                .antMatchers("/v3/api-docs/**")
+                .antMatchers("/swagger-resources/**")
+        }
+    }
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource? {
         val configuration = CorsConfiguration()

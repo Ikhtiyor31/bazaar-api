@@ -13,6 +13,4 @@ COPY --from=Build /workspace/${BUILD_JAR_PATH} .
 ENV PORT 8080
 EXPOSE $PORT
 
-FROM --platform=linux/amd64 platform
-
-ENTRYPOINT ["java", "-Xms1024m", "-Dspring.profiles.active=dev", "-jar", "-Dserver.port=${PORT}", "bazaar-api-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Xms1024m", "-Dspring.profiles.active=local", "-jar", "-Dserver.port=${PORT}", "bazaar-api-0.0.1-SNAPSHOT.jar"]
