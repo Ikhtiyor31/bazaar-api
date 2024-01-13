@@ -174,7 +174,7 @@ class UserServiceImpl(
             user.name,
             user.email,
             user.profileUrl,
-            user.address
+            ""
         )
 
         return userProfile
