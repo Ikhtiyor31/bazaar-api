@@ -4,6 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.FieldError
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -120,9 +121,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidException(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         logger.warn(ExceptionMessage.ARGUMENT_NOT_VALIDATION_EXCEPTION.message, ex)
+        val errorMessage = ex.bindingResult.fieldErrors
+                .map { fieldError: FieldError -> fieldError.defaultMessage }
+            .joinToString(", ")
+
         val body = ErrorResponse(
             HttpStatus.BAD_REQUEST.value(),
-            ex.message,
+            errorMessage,
             LocalDateTime.now()
         )
 
