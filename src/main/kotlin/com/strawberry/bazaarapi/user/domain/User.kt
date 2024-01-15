@@ -5,13 +5,11 @@ import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.util.TimeUtil.getCurrentLocalTimeInUZT
 import com.strawberry.bazaarapi.util.UserRoleConverter
 import org.hibernate.annotations.DynamicUpdate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
 @DynamicUpdate
-@EntityListeners(AuditingEntityListener::class)
 @Table(name = "users")
 data class User(
 
@@ -28,9 +26,6 @@ data class User(
 
     @Column(name = "password")
     var password: String = "",
-
-    @Column(name = "address")
-    var address: String = "",
 
     @Column(name = "profile_url")
     var profileUrl: String = "",
@@ -51,10 +46,22 @@ data class User(
     @Column(name = "deleted", nullable = false, columnDefinition = "BIT default 0")
     var deleted: Boolean? = false,
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val devices: List<UserDevice> = mutableListOf()
+    @OneToMany(
+        mappedBy = "user",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    val devices: List<UserDevice> = mutableListOf(),
 
-    )  {
+    @OneToMany(
+        mappedBy = "user",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    val userLocations: List<UserLocation> = emptyList(),
+) {
     fun updateUserRole(userRole: Role) {
         when (userRole) {
             Role.MANAGER -> this.role = Role.MANAGER

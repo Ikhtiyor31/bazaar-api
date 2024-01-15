@@ -1,6 +1,6 @@
 package com.strawberry.bazaarapi.common.exception
 
-enum class ExceptionMessage(val message: String) {
+enum class ExceptionMessage(var message: String) {
     INTERNAL_SERVER_ERROR("An unknown error has occurred"),
     INVALID_USERNAME_OR_PASSWORD("the username and/or password is incorrect"),
     USERNAME_ALREADY_TAKEN("the username is already in use"),
@@ -20,6 +20,6 @@ enum class ExceptionMessage(val message: String) {
     PASSWORD_MISMATCH("the password you entered do not match"),
     ARGUMENT_NOT_VALIDATION_EXCEPTION("the parameters or data in request is incorrect"),
     ILLEGAL_STATE_EXCEPTION("a method has been invoked at an illegal or inappropriate time"),
-    METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED"),
-    NO_HANDLER_FOUND("Not Found ")
+    CATEGORY_NOT_FOUND("category cannot be found with "),
+    PRODUCT_NOT_FOUND("product cannot be found with "),
 }
