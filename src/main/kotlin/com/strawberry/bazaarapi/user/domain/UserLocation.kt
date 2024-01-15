@@ -3,7 +3,7 @@ package com.strawberry.bazaarapi.user.domain
 import javax.persistence.*
 
 @Entity
-@Table(name = "locations")
+@Table(name = "user_locations")
 data class UserLocation(
     @Id
     @Column(name = "id")

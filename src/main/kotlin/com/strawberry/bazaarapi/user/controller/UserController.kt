@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/users")
 class UserController(
     private val userJwtTokenService: UserJwtTokenService,
-    val userService: UserService
+    private val userService: UserService
 ) {
 
     @PostMapping("/signup")

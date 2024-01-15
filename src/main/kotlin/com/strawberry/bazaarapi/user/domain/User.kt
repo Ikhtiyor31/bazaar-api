@@ -60,7 +60,7 @@ data class User(
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
-    val userLocations: List<UserLocation> = mutableListOf(),
+    val userLocations: List<UserLocation> = emptyList(),
 ) {
     fun updateUserRole(userRole: Role) {
         when (userRole) {

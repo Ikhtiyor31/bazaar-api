@@ -1,13 +1,13 @@
-package com.strawberry.bazaarapi.product.domain
+package com.strawberry.bazaarapi.user.domain
 
 import com.strawberry.bazaarapi.common.entity.BaseEntity
-import com.strawberry.bazaarapi.user.domain.User
+import com.strawberry.bazaarapi.product.domain.Product
 import javax.persistence.Entity
 import javax.persistence.*
 
 @Entity
-@Table(name = "favorites")
-data class Favorite(
+@Table(name = "user_favorites")
+data class UserFavorite(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
