@@ -206,11 +206,11 @@ class UserServiceImpl(
 
     }
 
-    override fun findUserByEmail(email: String): AuthenticatedUser {
+    override fun findUserByEmail(email: String): UserAdapter {
         val user = userRepository.findByEmail(email)
             ?: throw UsernameNotFoundException("user doesn't exist with the email: $email")
 
-        return AuthenticatedUser(user)
+        return UserAdapter(user)
     }
 
     companion object {

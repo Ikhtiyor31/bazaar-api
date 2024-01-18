@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.strawberry.bazaarapi.user.domain.User
 import com.strawberry.bazaarapi.user.domain.UserToken
-import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
+import com.strawberry.bazaarapi.user.dto.UserAdapter
 import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
 import com.strawberry.bazaarapi.util.UserUtil
@@ -75,30 +75,30 @@ class BaseBazaarApiIntegrationTest {
           objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
      }
 
-     fun authenticateUser(): AuthenticatedUser {
+     fun authenticateUser(): UserAdapter {
           val authToken = UsernamePasswordAuthenticationToken(getAuthenticatedUser(), null, getAuthenticatedUser().authorities)
           SecurityContextHolder.getContext().authentication = authToken
 
           Mockito.`when`(userJwtTokenService.getUserAccessToken(getAuthenticatedUser().username))
                .thenReturn(getUserToken(getAuthenticatedUser().username))
-          SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
+          SecurityContextHolder.getContext().authentication.principal as UserAdapter
 
-          return SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
+          return SecurityContextHolder.getContext().authentication.principal as UserAdapter
      }
 
-     fun authenticateAdminUser(): AuthenticatedUser {
+     fun authenticateAdminUser(): UserAdapter {
           val authToken = UsernamePasswordAuthenticationToken(getAuthenticatedAdmin(), null, getAuthenticatedAdmin().authorities)
           SecurityContextHolder.getContext().authentication = authToken
 
           Mockito.`when`(userJwtTokenService.getUserAccessToken(getAuthenticatedUser().username))
                .thenReturn(getUserToken(getAuthenticatedAdmin().username))
-          SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
+          SecurityContextHolder.getContext().authentication.principal as UserAdapter
 
-          return SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
+          return SecurityContextHolder.getContext().authentication.principal as UserAdapter
      }
 
      companion object {
-          fun getAuthenticatedUser(): AuthenticatedUser {
+          fun getAuthenticatedUser(): UserAdapter {
                val user =  User().apply {
                     this.id = 1L
                     this.name = "abdul"
@@ -108,10 +108,10 @@ class BaseBazaarApiIntegrationTest {
                     this.joinedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
                     this.lastLoggedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
                }
-               return AuthenticatedUser(user)
+               return UserAdapter(user)
           }
 
-          fun getAuthenticatedAdmin(): AuthenticatedUser {
+          fun getAuthenticatedAdmin(): UserAdapter {
                val user = User().apply {
                     this.id = 1L
                     this.name = "abdul"
@@ -122,7 +122,7 @@ class BaseBazaarApiIntegrationTest {
                     this.lastLoggedAt = LocalDateTime.of(2023, 10, 2, 23, 52, 14, 500_000_000)
                }
 
-               return AuthenticatedUser(user)
+               return UserAdapter(user)
           }
 
           fun getUser(): User {

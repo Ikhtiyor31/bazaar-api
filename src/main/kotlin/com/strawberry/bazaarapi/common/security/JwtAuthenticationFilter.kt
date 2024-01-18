@@ -1,10 +1,11 @@
 package com.strawberry.bazaarapi.common.security
 
 import com.strawberry.bazaarapi.user.domain.User
-import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
+import com.strawberry.bazaarapi.user.dto.UserAdapter
 import com.strawberry.bazaarapi.user.repository.UserRepository
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -22,29 +23,19 @@ class JwtAuthenticationFilter(
     @Autowired private val userRepository: UserRepository
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-
         val token = extractToken(request)
+        if (!token.isNullOrBlank()) {
+            val username = userJwtTokenService.extractUsername(token)
+            val user: User = userRepository.findByEmail(username)
+                    ?: throw UsernameNotFoundException("username doesn't exit with email: $username")
 
-        if (token == null) {
-            filterChain.doFilter(request, response)
-            return
-        }
-
-        val username =  userJwtTokenService.extractUsername(token)
-
-        if (SecurityContextHolder.getContext().authentication == null) {
-            val user: User = userRepository.findByEmail(username) ?:
-                throw UsernameNotFoundException("username doesn't exit with email: $username")
-
-            val authenticatedUser = AuthenticatedUser(user)
-            if (userJwtTokenService.isTokenValid(token, authenticatedUser)) {
-                val authToken = UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.authorities)
+            val userAdapter = UserAdapter(user)
+            if (userJwtTokenService.isTokenValid(token, userAdapter)) {
+                val authToken = UsernamePasswordAuthenticationToken(userAdapter, null, userAdapter.authorities)
                 SecurityContextHolder.getContext().authentication = authToken
             }
-
         }
         filterChain.doFilter(request, response)
-
     }
 
 

@@ -2,7 +2,7 @@ package com.strawberry.bazaarapi.user.controller
 
 import com.strawberry.bazaarapi.common.security.LoggedInUser
 import com.strawberry.bazaarapi.common.security.RoleMapping
-import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
+import com.strawberry.bazaarapi.user.dto.UserAdapter
 import com.strawberry.bazaarapi.user.dto.UserDeviceDto
 import com.strawberry.bazaarapi.user.dto.UserDeviceExistResponse
 import com.strawberry.bazaarapi.user.enums.Role
@@ -26,26 +26,26 @@ class UserDeviceController(
     @RoleMapping(Role.USER)
     @PostMapping
     fun createUserDevice(
-        @LoggedInUser authenticatedUser: AuthenticatedUser,
-        @RequestBody userDeviceDto: UserDeviceDto
+            @LoggedInUser userAdapter: UserAdapter,
+            @RequestBody userDeviceDto: UserDeviceDto
     ): ResponseEntity<UserDeviceDto> {
-        return ResponseEntity.ok(userDeviceService.createUserDevice(authenticatedUser.userInfo(), userDeviceDto))
+        return ResponseEntity.ok(userDeviceService.createUserDevice(userAdapter.userInfo(), userDeviceDto))
     }
 
     @RoleMapping(Role.USER)
     @DeleteMapping
-    fun deletedUserDevice(@LoggedInUser authenticatedUser: AuthenticatedUser): ResponseEntity<String> {
-        userDeviceService.deleteUserDevice(authenticatedUser.userInfo())
+    fun deletedUserDevice(@LoggedInUser userAdapter: UserAdapter): ResponseEntity<String> {
+        userDeviceService.deleteUserDevice(userAdapter.userInfo())
         return ResponseEntity.ok("Ok")
     }
 
     @RoleMapping(Role.USER)
     @GetMapping
     fun isUserDeviceExist(
-        @LoggedInUser authenticatedUser: AuthenticatedUser,
-        @RequestParam deviceKey: String
+            @LoggedInUser userAdapter: UserAdapter,
+            @RequestParam deviceKey: String
     ): ResponseEntity<UserDeviceExistResponse> {
-        return ResponseEntity.ok(userDeviceService.findUserDevice(authenticatedUser.userInfo(), deviceKey))
+        return ResponseEntity.ok(userDeviceService.findUserDevice(userAdapter.userInfo(), deviceKey))
     }
 
 }

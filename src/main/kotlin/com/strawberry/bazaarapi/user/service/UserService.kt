@@ -10,6 +10,6 @@ interface UserService {
     fun resetPassword(passwordResetRequest: PasswordResetRequest): PasswordResetResponse
     fun deleteUserAccount(email: String): String
     fun resendVerificationCode(email: String): UserSignupResponse
-    fun findUserByEmail(email: String): AuthenticatedUser
+    fun findUserByEmail(email: String): UserAdapter
     fun getUserInfo(userId: Long): UserProfile
 }

@@ -96,6 +96,12 @@ dependencies {
 	/** h2 db for testing */
 	testImplementation("com.h2database:h2")
 
+	/** elasticsearch */
+	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+
+	/** FMC */
+	implementation("com.google.firebase:firebase-admin:9.1.1")
+
 }
 
 kotlin.sourceSets.main {

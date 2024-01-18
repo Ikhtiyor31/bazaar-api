@@ -4,8 +4,8 @@ package com.strawberry.bazaarapi.user.service
 import com.strawberry.bazaarapi.user.domain.UserToken
 import com.strawberry.bazaarapi.common.exception.ApiAuthenticationException
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
+import com.strawberry.bazaarapi.user.dto.UserAdapter
 import com.strawberry.bazaarapi.user.repository.UserJwtAccessTokenRepository
-import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
 import com.strawberry.bazaarapi.user.dto.RefreshTokenRequest
 import com.strawberry.bazaarapi.user.dto.UserLoginResponse
 import com.strawberry.bazaarapi.util.UserUtil.ACCESS_TOKEN_LIFETIME_HOUR
@@ -44,10 +44,10 @@ class UserJwtTokenServiceImpl(
         return extractClaims(token, Claims.SUBJECT).toString()
     }
 
-    override fun isTokenValid(token: String, authenticatedUser: AuthenticatedUser): Boolean {
+    override fun isTokenValid(token: String, userAdapter: UserAdapter): Boolean {
         val username = extractUsername(token)
 
-        return username == authenticatedUser.username && !isTokenExpired(token)
+        return username == userAdapter.username && !isTokenExpired(token)
 
     }
 

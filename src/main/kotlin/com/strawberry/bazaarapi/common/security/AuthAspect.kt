@@ -2,7 +2,7 @@ package com.strawberry.bazaarapi.common.security
 
 import com.strawberry.bazaarapi.common.exception.ExceptionMessage
 import com.strawberry.bazaarapi.common.exception.ForbiddenException
-import com.strawberry.bazaarapi.user.dto.AuthenticatedUser
+import com.strawberry.bazaarapi.user.dto.UserAdapter
 import com.strawberry.bazaarapi.user.enums.Role
 import com.strawberry.bazaarapi.user.service.UserJwtTokenService
 import org.aspectj.lang.ProceedingJoinPoint
@@ -21,7 +21,7 @@ class AuthAspect(
 
     @Around("@annotation(roleMapping)")
     fun aroundRoleMapping(joinPoint: ProceedingJoinPoint, roleMapping: RoleMapping): Any? {
-        val user = SecurityContextHolder.getContext().authentication.principal as AuthenticatedUser
+        val user = SecurityContextHolder.getContext().authentication.principal as UserAdapter
 
         val userAccessToken = userJwtTokenService.getUserAccessToken(user.username) ?:
             throw ForbiddenException(ExceptionMessage.INVALID_OR_EXPIRED_USER_ACCESS_TOKEN)

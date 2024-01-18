@@ -53,8 +53,8 @@ class UserController(
 
     @RoleMapping(Role.USER)
     @DeleteMapping("/delete-account")
-    fun deleteUserAccount(@LoggedInUser authenticatedUser: AuthenticatedUser): ResponseEntity<String> {
-        return ResponseEntity.ok(userService.deleteUserAccount(authenticatedUser.username))
+    fun deleteUserAccount(@LoggedInUser userAdapter: UserAdapter): ResponseEntity<String> {
+        return ResponseEntity.ok(userService.deleteUserAccount(userAdapter.username))
     }
 
     @PostMapping("/resend-verification-code/{email}")
@@ -66,5 +66,11 @@ class UserController(
     @GetMapping("/{userId}")
     fun getUserInfo(@PathVariable("userId") userId: Long): ResponseEntity<UserProfile> {
         return ResponseEntity.ok().body(userService.getUserInfo(userId))
+    }
+
+    @RoleMapping(Role.MANAGER)
+    @GetMapping("/test")
+    fun getTest(): String {
+        return "OK"
     }
 }

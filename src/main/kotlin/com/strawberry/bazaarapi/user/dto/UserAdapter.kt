@@ -7,12 +7,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 
-class AuthenticatedUser (
+class UserAdapter (
     private val user: User
 ): UserDetails {
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return listOf(SimpleGrantedAuthority(user.role.name)).toMutableList()
+    override fun getAuthorities(): Collection<GrantedAuthority> {
+        val grantedAuthority: GrantedAuthority = SimpleGrantedAuthority("ROLE_" + user.role.name)
+        return listOf(grantedAuthority)
     }
 
     override fun getPassword(): String {
