@@ -1,7 +1,6 @@
 package com.strawberry.bazaarapi.product.domain
 
 import com.strawberry.bazaarapi.category.domain.Category
-import com.strawberry.bazaarapi.category.dto.CategoryRequest
 import com.strawberry.bazaarapi.common.entity.BaseEntity
 import com.strawberry.bazaarapi.product.dto.ProductRequest
 import com.strawberry.bazaarapi.user.domain.User
@@ -17,56 +16,54 @@ import javax.persistence.*
         Index(columnList = "seller_id", name = "idx_product_seller_id")
     ]
 )
-@AttributeOverride(name = "id", column = Column(name = "product_id"))
+
 @Where(clause = "deleted=0")
 data class Product(
-    @Id
+        @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     val id: Int = 0,
 
-    @Column(name = "seller_id", nullable = false)
-    val sellerId: Int,
-
-    @Column(name = "title", nullable = false)
+        @Column(name = "title", nullable = false)
     var title: String,
 
-    @Column(name = "description", columnDefinition = "TEXT")
+        @Column(name = "description", columnDefinition = "TEXT")
     var description: String?,
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
+        @Column(name = "price", nullable = false, precision = 10, scale = 2)
     var price: BigDecimal,
 
-    @Column(name = "condition", nullable = false)
-    var condition: String,
+        @Column(name = "item_condition", nullable = false)
+    var itemCondition: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_location_id", nullable = false)
     var userLocation: UserLocation? = null,
 
-    @Column(name = "is_sold", nullable = false)
+        @Column(name = "is_sold", nullable = false)
     var isSold: Boolean = false,
 
-    @Column(name = "is_negotiable", nullable = false)
+        @Column(name = "is_negotiable", nullable = false)
     var isNegotiable: Boolean = false,
 
-    @Column(name = "is_hidden", nullable = false)
+        @Column(name = "is_hidden", nullable = false)
     var isHidden: Boolean = false,
 
-    @Column(name = "favorite_count", nullable = false)
+        @Column(name = "favorite_count", nullable = false)
     var favoriteCount: Int = 0,
 
-    @Column(name = "view_count", nullable = false)
+        @Column(name = "view_count", nullable = false)
     var viewCount: Int = 0,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", insertable = false, updatable = false)
+        @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
     var seller: User? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+        @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
     var category: Category? = null,
 
-    @OneToMany(
+        @OneToMany(
         mappedBy = "product",
         cascade = [CascadeType.ALL],
         orphanRemoval = true,
@@ -80,7 +77,7 @@ data class Product(
         title = productRequest.title
         description = productRequest.description
         price = productRequest.price
-        condition = productRequest.condition
+        itemCondition = productRequest.condition
         userLocation = productRequest.userLocation
         isSold = productRequest.isSold
         isNegotiable = productRequest.isNegotiable

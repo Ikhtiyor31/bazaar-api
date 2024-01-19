@@ -7,7 +7,6 @@ import javax.persistence.*
 @Entity
 @Table(name = "product_images", indexes = [
     Index(columnList = "product_image_id", name = "idx_product_image_id"),
-    Index(columnList = "image_url", name = "idx_product_image_url")
 ])
 @Where(clause = "deleted=false")
 data class ProductImage(
@@ -16,10 +15,10 @@ data class ProductImage(
     @Column(name = "product_image_id")
     val id: Int = 0,
 
-    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "image_url", nullable = false, length = 255, columnDefinition = "TEXT")
     val imageUrl: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     val product: Product? = null
 ) : BaseEntity()

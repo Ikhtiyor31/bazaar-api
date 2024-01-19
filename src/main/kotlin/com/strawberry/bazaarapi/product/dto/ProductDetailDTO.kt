@@ -5,7 +5,6 @@ import com.strawberry.bazaarapi.user.domain.UserLocation
 import java.math.BigDecimal
 
 data class ProductDetailDTO(
-    val sellerId: Int,
     val title: String,
     val description: String?,
     val price: BigDecimal,
@@ -22,11 +21,10 @@ data class ProductDetailDTO(
 
 fun Product.toProductDetailDTO() : ProductDetailDTO {
     return ProductDetailDTO(
-        sellerId = this.sellerId,
         title = this.title,
         description = this.description,
         price = this.price,
-        condition = this.condition,
+        condition = this.itemCondition,
         userLocation = this.userLocation,
         isSold = this.isSold,
         isNegotiable = this.isNegotiable,

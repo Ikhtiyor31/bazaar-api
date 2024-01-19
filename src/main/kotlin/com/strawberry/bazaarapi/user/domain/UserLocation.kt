@@ -6,7 +6,7 @@ import javax.persistence.*
 @Table(name = "user_locations")
 data class UserLocation(
     @Id
-    @Column(name = "id")
+    @Column(name = "user_location_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 

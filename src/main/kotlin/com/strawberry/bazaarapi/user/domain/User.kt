@@ -61,6 +61,14 @@ data class User(
         fetch = FetchType.LAZY
     )
     val userLocations: List<UserLocation> = emptyList(),
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = [CascadeType.ALL],
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    val userFavorites: List<UserFavorite> = emptyList(),
 ) {
     fun updateUserRole(userRole: Role) {
         when (userRole) {
